@@ -7,7 +7,7 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Ginástica Rítmica - Gestão",
+  title: "Modaltech - ECG",
   description: "Sistema de gestão para rede de escolas de ginástica rítmica infantil",
   generator: "v0.app",
   applicationName: "Ginástica Rítmica",
@@ -23,17 +23,17 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/icon-192.jpg",
+        url: "/logo.jpeg",
         sizes: "192x192",
         type: "image/jpeg",
       },
       {
-        url: "/icon-512.jpg",
+        url: "/logo.jpeg",
         sizes: "512x512",
         type: "image/jpeg",
       },
     ],
-    apple: "/icon-192.jpg",
+    apple: "/logo.jpeg",
   },
 }
 
