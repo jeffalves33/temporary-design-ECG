@@ -5,7 +5,7 @@ import { MobileHeader } from "@/components/layout/mobile-header"
 import { SearchInput } from "@/components/ui/search-input"
 import { Modal } from "@/components/ui/modal"
 import { Plus, GraduationCap, Users, Edit, Trash2, ChevronRight, CheckCircle, AlertCircle } from "lucide-react"
-import { professoras, turmas, alunas, pagamentosProfessoras, polos } from "@/lib/mock-data"
+import { professoras, turmas, alunas, pagamentosProfessoras, pagamentosAlunas, polos } from "@/lib/mock-data"
 import Link from "next/link"
 import type { Professora } from "@/lib/types"
 
@@ -17,7 +17,7 @@ export default function ProfessorasPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedProfessora, setSelectedProfessora] = useState<Professora | null>(null)
 
-  const [salarioMensal, setSalarioMensal] = useState("")
+  // Salário é calculado dinamicamente pela soma dos valores definidos em cada turma
 
   const getSalarioStatus = (professoraId: string) => {
     const pagamento = pagamentosProfessoras.find(
@@ -226,17 +226,11 @@ export default function ProfessorasPage() {
               ))}
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-(--color-foreground) mb-1.5">Salário Mensal</label>
-            <input
-              type="number"
-              placeholder="1500.00"
-              step="0.01"
-              value={salarioMensal}
-              onChange={(e) => setSalarioMensal(e.target.value)}
-              className="w-full px-4 py-2.5 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
-              required
-            />
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <p className="text-sm font-semibold text-amber-800 mb-1">Remuneração definida por turma</p>
+            <p className="text-xs text-amber-700">
+              O valor que cada professora recebe é definido ao configurar cada turma — podendo ser um valor fixo (R$) ou uma porcentagem (%) da receita da turma no mês. O total é calculado automaticamente no fechamento mensal.
+            </p>
           </div>
           <div className="flex gap-3 pt-2">
             <button
@@ -283,17 +277,29 @@ export default function ProfessorasPage() {
               required
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-(--color-foreground) mb-1.5">Salário Mensal</label>
-            <input
-              type="number"
-              placeholder="1500.00"
-              step="0.01"
-              defaultValue={selectedProfessora?.salarioMensal || ""}
-              className="w-full px-4 py-2.5 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
-              required
-            />
-          </div>
+          {/* Remuneração por turma — leitura */}
+          {(() => {
+            const turmasDaProf = turmas.filter((t) => t.professoraIds.includes(selectedProfessora?.id ?? ""))
+            if (turmasDaProf.length === 0) return null
+            return (
+              <div className="bg-(--color-background-secondary) rounded-lg p-3">
+                <p className="text-xs font-semibold text-(--color-foreground-secondary) mb-2">Remuneração por turma</p>
+                {turmasDaProf.map((t) => {
+                  const cfg = t.professorasConfig?.find((c) => c.professoraId === selectedProfessora?.id)
+                  const receita = pagamentosAlunas.filter((p) => alunas.find((a) => a.turmaId === t.id && a.id === p.alunaId) && p.mesReferencia === "2024-03").reduce((s, p) => s + p.valor, 0)
+                  const valorCalc = cfg ? (cfg.tipo === "percentual" ? receita * cfg.valor / 100 : cfg.valor) : 0
+                  return (
+                    <div key={t.id} className="flex justify-between items-center py-1 border-b border-(--color-border) last:border-0">
+                      <span className="text-sm text-(--color-foreground)">{t.name}</span>
+                      <span className="text-sm font-semibold text-(--color-foreground)">
+                        {cfg ? (cfg.tipo === "percentual" ? `${cfg.valor}% da receita = R$ ${valorCalc.toFixed(2)}` : `R$ ${cfg.valor.toFixed(2)} fixo`) : "—"}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
           <div className="flex gap-3 pt-2">
             <button
               type="button"

@@ -23,22 +23,15 @@ export default function AdminDashboard() {
   const alunasPendentes = new Set(pagamentosMesAtual.filter((p) => p.status === "Pendente").map((p) => p.alunaId)).size
 
   const quickLinks = [
-    { label: "Gerenciar Polos", href: "/admin/polos", icon: MapPin, color: "bg-blue-100 text-blue-600" },
-    { label: "Gerenciar Locais", href: "/admin/locais", icon: MapPin, color: "bg-purple-100 text-purple-600" },
-    { label: "Gerenciar Turmas", href: "/admin/turmas", icon: GraduationCap, color: "bg-green-100 text-green-600" },
-    { label: "Gerenciar Alunas", href: "/admin/alunas", icon: Users, color: "bg-pink-100 text-pink-600" },
-    {
-      label: "Gerenciar Professoras",
-      href: "/admin/professoras",
-      icon: GraduationCap,
-      color: "bg-orange-100 text-orange-600",
-    },
-    {
-      label: "Financeiro Geral",
-      href: "/admin/financeiro",
-      icon: DollarSign,
-      color: "bg-emerald-100 text-emerald-600",
-    },
+    { label: "Polos", href: "/admin/polos", icon: MapPin, color: "bg-blue-100 text-blue-600" },
+    { label: "Locais", href: "/admin/locais", icon: MapPin, color: "bg-purple-100 text-purple-600" },
+    { label: "Turmas", href: "/admin/turmas", icon: GraduationCap, color: "bg-green-100 text-green-600" },
+    { label: "Alunas", href: "/admin/alunas", icon: Users, color: "bg-pink-100 text-pink-600" },
+    { label: "Professoras", href: "/admin/professoras", icon: GraduationCap, color: "bg-orange-100 text-orange-600" },
+    { label: "Financeiro", href: "/admin/financeiro", icon: DollarSign, color: "bg-emerald-100 text-emerald-600" },
+    { label: "Cobranças", href: "/admin/cobrancas", icon: AlertCircle, color: "bg-amber-100 text-amber-600" },
+    { label: "Produtos", href: "/admin/produtos", icon: TrendingUp, color: "bg-cyan-100 text-cyan-600" },
+    { label: "Configuracoes", href: "/admin/configuracoes", icon: DollarSign, color: "bg-gray-100 text-gray-600" },
   ]
 
   return (

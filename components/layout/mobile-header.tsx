@@ -19,13 +19,16 @@ export function MobileHeader({ title }: MobileHeaderProps) {
   const isAdmin = user.role === "admin"
 
   const adminMenuItems = [
-    { label: "Dashboard", href: "/admin" },
-    { label: "Polos", href: "/admin/polos" },
-    { label: "Locais", href: "/admin/locais" },
-    { label: "Turmas", href: "/admin/turmas" },
-    { label: "Alunas", href: "/admin/alunas" },
-    { label: "Professoras", href: "/admin/professoras" },
-    { label: "Financeiro", href: "/admin/financeiro" },
+    { label: "Dashboard", href: "/admin", group: "Geral" },
+    { label: "Polos", href: "/admin/polos", group: "Gestao" },
+    { label: "Locais", href: "/admin/locais", group: "Gestao" },
+    { label: "Turmas", href: "/admin/turmas", group: "Gestao" },
+    { label: "Alunas", href: "/admin/alunas", group: "Gestao" },
+    { label: "Professoras", href: "/admin/professoras", group: "Gestao" },
+    { label: "Financeiro", href: "/admin/financeiro", group: "Financeiro" },
+    { label: "Cobranças", href: "/admin/cobrancas", group: "Financeiro" },
+    { label: "Produtos", href: "/admin/produtos", group: "Loja" },
+    { label: "Configuracoes", href: "/admin/configuracoes", group: "Sistema" },
   ]
 
   const professoraMenuItems = [
@@ -94,18 +97,56 @@ export function MobileHeader({ title }: MobileHeaderProps) {
 
               {/* Menu items */}
               <nav className="flex-1 overflow-y-auto py-4">
-                <div className="px-3 space-y-1">
-                  {menuItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <span className="font-medium">{item.label}</span>
-                    </Link>
-                  ))}
-                </div>
+                {isAdmin ? (
+                  // Admin: menu agrupado
+                  <div className="px-3 space-y-4">
+                    {["Geral", "Gestao", "Financeiro", "Loja", "Sistema"].map((group) => {
+                      const items = adminMenuItems.filter((i) => i.group === group)
+                      if (!items.length) return null
+                      return (
+                        <div key={group}>
+                          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 mb-1">
+                            {group}
+                          </p>
+                          <div className="space-y-0.5">
+                            {items.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => setIsMenuOpen(false)}
+                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                                  pathname === item.href
+                                    ? "bg-[#9EF01A]/20 text-gray-900 font-semibold"
+                                    : "text-gray-700 hover:bg-gray-100"
+                                }`}
+                              >
+                                <span className="font-medium">{item.label}</span>
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  // Professora: menu simples
+                  <div className="px-3 space-y-0.5">
+                    {professoraMenuItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsMenuOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                          pathname === item.href
+                            ? "bg-[#9EF01A]/20 text-gray-900 font-semibold"
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <span className="font-medium">{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </nav>
 
               {/* Footer do menu */}

@@ -5,7 +5,7 @@ import { MobileHeader } from "@/components/layout/mobile-header"
 import { BackButton } from "@/components/ui/back-button"
 import { Modal } from "@/components/ui/modal"
 import { GraduationCap, Users, Phone, Mail, MapPin, CheckCircle, AlertCircle } from "lucide-react"
-import { professoras, turmas, alunas, polos, locais, pagamentosProfessoras } from "@/lib/mock-data"
+import { professoras, turmas, alunas, polos, locais, pagamentosProfessoras, pagamentosAlunas } from "@/lib/mock-data"
 import { formatCurrency } from "@/lib/utils"
 import Link from "next/link"
 
@@ -142,48 +142,62 @@ function ProfessoraDetailClient({
           </div>
         </section>
 
-        {/* Financeiro */}
+        {/* Financeiro — cálculo por turma */}
         <section className="space-y-3">
           <h3 className="text-lg font-bold text-(--color-foreground)">Histórico de Pagamentos</h3>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             {pagamentos.map((pagamento) => {
               const [year, month] = pagamento.mesReferencia.split("-")
-              const monthName = new Date(Number.parseInt(year), Number.parseInt(month) - 1).toLocaleDateString(
-                "pt-BR",
-                {
-                  month: "long",
-                  year: "numeric",
-                },
-              )
-
+              const monthName = new Date(Number.parseInt(year), Number.parseInt(month) - 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })
               return (
-                <div key={pagamento.id} className="bg-white rounded-lg p-4 border border-(--color-border)">
-                  <div className="flex items-start justify-between mb-3">
+                <div key={pagamento.id} className="bg-white rounded-lg border border-(--color-border) overflow-hidden">
+                  <div className="flex items-start justify-between p-4 pb-3">
                     <div className="flex-1">
                       <p className="font-semibold text-(--color-foreground) capitalize">{monthName}</p>
                       {pagamento.dataPagamento && (
-                        <p className="text-xs text-(--color-foreground-secondary) mt-1">
+                        <p className="text-xs text-(--color-foreground-secondary) mt-0.5">
                           Pago em {new Date(pagamento.dataPagamento).toLocaleDateString("pt-BR")}
                         </p>
                       )}
                     </div>
                     {pagamento.status === "Pago" ? (
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1">
-                        <CheckCircle className="w-3 h-3" />
-                        Pago
-                      </span>
+                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1"><CheckCircle className="w-3 h-3" />Pago</span>
                     ) : (
-                      <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        Pendente
-                      </span>
+                      <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full flex items-center gap-1"><AlertCircle className="w-3 h-3" />Pendente</span>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <p className="text-lg font-bold text-(--color-foreground)">{formatCurrency(pagamento.valor)}</p>
+                  {/* Detalhamento por turma */}
+                  <div className="border-t border-(--color-border) divide-y divide-(--color-border)">
+                    {turmasDaProfessora.map((turma) => {
+                      const cfg = turma.professorasConfig?.find((c: import("@/lib/types").ProfessoraTurma) => c.professoraId === professora.id)
+                      if (!cfg) return null
+                      const receitaTurma = pagamentosAlunas
+                        .filter((p) => p.mesReferencia === pagamento.mesReferencia && alunas.find((a) => a.turmaId === turma.id && a.id === p.alunaId))
+                        .reduce((s, p) => s + p.valor, 0)
+                      const valor = cfg.tipo === "fixo" ? cfg.valor : (receitaTurma * cfg.valor) / 100
+                      return (
+                        <div key={turma.id} className="flex justify-between items-center px-4 py-2">
+                          <div>
+                            <span className="text-sm text-(--color-foreground)">{turma.name}</span>
+                            <span className="ml-2 text-xs text-(--color-foreground-secondary)">
+                              {cfg.tipo === "percentual"
+                                ? `${cfg.valor}% de ${formatCurrency(receitaTurma)}`
+                                : `Fixo`}
+                            </span>
+                          </div>
+                          <span className="font-semibold text-sm text-(--color-foreground)">{formatCurrency(valor)}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
 
+                  <div className="flex items-center justify-between px-4 py-3 bg-(--color-background-secondary)">
+                    <div>
+                      <p className="text-xs text-(--color-foreground-secondary)">Total do mês</p>
+                      <p className="text-lg font-bold text-(--color-foreground)">{formatCurrency(pagamento.valor)}</p>
+                    </div>
                     {pagamento.status === "Pendente" && (
                       <button
                         onClick={() => setIsPagamentoModalOpen(true)}
